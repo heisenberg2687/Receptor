@@ -1,7 +1,14 @@
 // Contract configuration
 export const CONTRACT_CONFIG = {
   // Replace with your deployed contract address
-  CONTRACT_ADDRESS: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+  CONTRACT_ADDRESS: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  
+  // Default vendor for testing (using Hardhat test account #1)
+  DEFAULT_VENDOR: {
+    address: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    name: "Test Vendor Store",
+    description: "Default test vendor for development"
+  },
   
   // Network configurations
   NETWORKS: {
@@ -14,7 +21,7 @@ export const CONTRACT_CONFIG = {
     sepolia: {
       chainId: 11155111,
       name: "Sepolia Testnet",
-      rpcUrl: "https://sepolia.infura.io/v3/YOUR_INFURA_KEY",
+      rpcUrl: "https://sepolia.drpc.org",
       blockExplorer: "https://sepolia.etherscan.io"
     },
     mainnet: {
@@ -26,7 +33,7 @@ export const CONTRACT_CONFIG = {
   },
   
   // Default network (change based on your deployment)
-  DEFAULT_NETWORK: "localhost"
+  DEFAULT_NETWORK: "sepolia"
 };
 
 // Contract ABI (Application Binary Interface)

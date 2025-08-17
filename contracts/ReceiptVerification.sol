@@ -90,6 +90,13 @@ contract ReceiptVerification is Ownable, ReentrancyGuard {
         string businessName,
         uint256 timestamp
     );
+
+    event ReceiptCancelled(
+        uint256 indexed receiptId,
+        address indexed canceller,
+        uint256 timestamp
+    );
+    
     
     
     // Modifiers
@@ -296,8 +303,18 @@ contract ReceiptVerification is Ownable, ReentrancyGuard {
             receipt.status == ReceiptStatus.Requested || receipt.status == ReceiptStatus.Approved,
             "Can only cancel requested or approved receipts"
         );
+
+        // If the receipt was approved, decrement the business's totalReceipts count
+        if (receipt.status == ReceiptStatus.Approved) {
+            Business storage business = businesses[receipt.issuer];
+            if (business.isActive && business.totalReceipts > 0) {
+                business.totalReceipts--;
+            }
+        }
         
         receipt.status = ReceiptStatus.Cancelled;
+
+        emit ReceiptCancelled(_receiptId, msg.sender, block.timestamp);
     }
     
     /**
@@ -334,7 +351,7 @@ contract ReceiptVerification is Ownable, ReentrancyGuard {
      * @param _vendor Address of the vendor
      */
     function getPendingRequests(address _vendor) external view returns (uint256[] memory) {
-        uint256[] memory allReceipts = businessReceipts[_vendor];
+        uint256[] storage allReceipts = businessReceipts[_vendor];
         uint256 pendingCount = 0;
         
         // First, count how many are pending

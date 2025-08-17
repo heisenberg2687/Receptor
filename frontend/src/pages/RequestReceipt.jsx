@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWeb3 } from '../contexts/Web3Context';
+import { CONTRACT_CONFIG } from '../config/contract';
 import { Receipt, Upload, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -15,8 +16,8 @@ const RequestReceipt = () => {
   } = useWeb3();
   
   const [formData, setFormData] = useState({
-    vendorAddress: '',
-    vendorName: '',
+    vendorAddress: CONTRACT_CONFIG.DEFAULT_VENDOR.address,
+    vendorName: CONTRACT_CONFIG.DEFAULT_VENDOR.name,
     description: '',
     amount: '',
     transactionDate: '',
@@ -180,8 +181,19 @@ const RequestReceipt = () => {
 
       {/* Request Receipt Form */}
       <div className="card">
+        {/* Default Vendor Notice */}
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center space-x-2">
+            <Receipt className="h-5 w-5 text-blue-600" />
+            <h3 className="text-sm font-medium text-blue-900">Using Default Test Vendor</h3>
+          </div>
+          <p className="mt-1 text-sm text-blue-700">
+            For testing purposes, all receipt requests will be sent to: <span className="font-mono">{CONTRACT_CONFIG.DEFAULT_VENDOR.name}</span>
+          </p>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Vendor Address */}
+          {/* Vendor Address - Read Only */}
           <div>
             <label htmlFor="vendorAddress" className="block text-sm font-medium text-gray-700 mb-2">
               Vendor Address *
@@ -191,18 +203,17 @@ const RequestReceipt = () => {
               id="vendorAddress"
               name="vendorAddress"
               value={formData.vendorAddress}
-              onChange={handleInputChange}
-              placeholder="0x..."
-              className="input"
+              className="input bg-gray-50 cursor-not-allowed"
               required
-              disabled={isSubmitting}
+              disabled={true}
+              readOnly
             />
             <p className="mt-1 text-xs text-gray-500">
-              The Ethereum address of the vendor/business
+              Default test vendor address (hardcoded for testing)
             </p>
           </div>
 
-          {/* Vendor Name */}
+          {/* Vendor Name - Read Only */}
           <div>
             <label htmlFor="vendorName" className="block text-sm font-medium text-gray-700 mb-2">
               Vendor Name *
@@ -212,14 +223,13 @@ const RequestReceipt = () => {
               id="vendorName"
               name="vendorName"
               value={formData.vendorName}
-              onChange={handleInputChange}
-              placeholder="Enter vendor/business name..."
-              className="input"
+              className="input bg-gray-50 cursor-not-allowed"
               required
-              disabled={isSubmitting}
+              disabled={true}
+              readOnly
             />
             <p className="mt-1 text-xs text-gray-500">
-              Name of the vendor as you know them
+              Default test vendor name (hardcoded for testing)
             </p>
           </div>
 
