@@ -1,16 +1,12 @@
-// Contract configuration
+
+// contract.js
 export const CONTRACT_CONFIG = {
-  // Replace with your deployed contract address
   CONTRACT_ADDRESS: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-  
-  // Default vendor for testing (using Hardhat test account #1)
   DEFAULT_VENDOR: {
     address: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
     name: "Test Vendor Store",
     description: "Default test vendor for development"
   },
-  
-  // Network configurations
   NETWORKS: {
     localhost: {
       chainId: 31337,
@@ -31,12 +27,9 @@ export const CONTRACT_CONFIG = {
       blockExplorer: "https://etherscan.io"
     }
   },
-  
-  // Default network (change based on your deployment)
-  DEFAULT_NETWORK: "sepolia"
+  DEFAULT_NETWORK: "localhost"
 };
 
-// Contract ABI (Application Binary Interface)
 export const CONTRACT_ABI = [
   {
     "inputs": [],
@@ -151,8 +144,39 @@ export const CONTRACT_ABI = [
       {
         "indexed": true,
         "internalType": "address",
+        "name": "canceller",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "ReceiptCancelled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "receiptId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "disputer",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "reason",
+        "type": "string"
       },
       {
         "indexed": false,
@@ -238,6 +262,12 @@ export const CONTRACT_ABI = [
         "indexed": false,
         "internalType": "uint256",
         "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "deadline",
         "type": "uint256"
       }
     ],
@@ -364,6 +394,11 @@ export const CONTRACT_ABI = [
         "internalType": "uint256",
         "name": "_receiptId",
         "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_reason",
+        "type": "string"
       }
     ],
     "name": "disputeReceipt",
@@ -462,6 +497,11 @@ export const CONTRACT_ABI = [
             "type": "uint256"
           },
           {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          },
+          {
             "internalType": "enum ReceiptVerification.ReceiptStatus",
             "name": "status",
             "type": "uint8"
@@ -469,6 +509,16 @@ export const CONTRACT_ABI = [
           {
             "internalType": "string",
             "name": "ipfsHash",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "rejectionReason",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "disputeReason",
             "type": "string"
           },
           {
@@ -581,6 +631,11 @@ export const CONTRACT_ABI = [
         "type": "uint256"
       },
       {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+      },
+      {
         "internalType": "enum ReceiptVerification.ReceiptStatus",
         "name": "status",
         "type": "uint8"
@@ -588,6 +643,16 @@ export const CONTRACT_ABI = [
       {
         "internalType": "string",
         "name": "ipfsHash",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "rejectionReason",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "disputeReason",
         "type": "string"
       },
       {
@@ -683,6 +748,19 @@ export const CONTRACT_ABI = [
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "_period",
+        "type": "uint256"
+      }
+    ],
+    "name": "setStatusChangePeriod",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "newOwner",
         "type": "address"
@@ -732,22 +810,22 @@ export const CONTRACT_ABI = [
   }
 ];
 
-// Receipt status enum
 export const RECEIPT_STATUS = {
-  0: "Requested",  // Customer has requested receipt
-  1: "Approved",   // Vendor has approved the request
-  2: "Rejected",   // Vendor has rejected the request
-  3: "Verified",   // Receipt has been verified
-  4: "Disputed",   // Receipt is under dispute
-  5: "Cancelled"   // Receipt has been cancelled
+  0: "Requested",
+  1: "Approved",
+  2: "Rejected",
+  3: "Verified",
+  4: "Disputed",
+  5: "Cancelled",
+  6: "Expired"
 };
 
-// Status colors for UI
 export const STATUS_COLORS = {
-  0: "warning",   // Requested - yellow
-  1: "primary",   // Approved - blue
-  2: "danger",    // Rejected - red
-  3: "success",   // Verified - green
-  4: "danger",    // Disputed - red
-  5: "secondary"  // Cancelled - gray
+  0: "warning",
+  1: "primary",
+  2: "danger",
+  3: "success",
+  4: "danger",
+  5: "secondary",
+  6: "warning"
 };

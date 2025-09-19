@@ -1,562 +1,391 @@
+
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useWeb3 } from '../contexts/Web3Context';
-import { RECEIPT_STATUS, STATUS_COLORS } from '../config/contract';
+import { RECEIPT_STATUS } from '../config/contract';
+import Navbar from '../components/Layout/Navbar';
 import { 
   Receipt, 
-  ArrowLeft, 
   CheckCircle, 
-  XCircle,
-  AlertTriangle,
-  Building2,
-  User,
-  Calendar,
-  DollarSign,
-  Hash,
-  ExternalLink,
-  Download,
-  Share
+  XCircle, 
+  Clock, 
+  AlertCircle, 
+  ArrowLeft
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const ReceiptDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { 
-    contract, 
-    account, 
-    isConnected, 
-    formatEther, 
-    formatAddress,
-    waitForTransaction 
-  } = useWeb3();
+  const { contract, account, formatEther, formatAddress, waitForTransaction } = useWeb3();
   
-  const [receiptData, setReceiptData] = useState(null);
+  const [receipt, setReceipt] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [verifying, setVerifying] = useState(false);
-  const [disputing, setDisputing] = useState(false);
-  const [cancelling, setCancelling] = useState(false);
+  const [isDisputeModalOpen, setIsDisputeModalOpen] = useState(false);
+  const [disputeReason, setDisputeReason] = useState('');
+  const [disputeError, setDisputeError] = useState('');
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
-    if (isConnected && contract && id) {
-      loadReceiptData();
+    if (contract) {
+      loadReceipt();
     }
-  }, [isConnected, contract, id]);
+  }, [contract]);
 
-  const loadReceiptData = async () => {
+  const loadReceipt = async () => {
     try {
       setLoading(true);
-      const receipt = await contract.getReceipt(id);
-      
-      if (!receipt.exists) {
-        toast.error('Receipt not found');
-        navigate('/');
-        return;
+      console.log(`Loading receipt ${id} for account:`, account);
+      const receiptData = await contract.getReceipt(Number(id));
+      console.log(`Raw receipt data for ${id}:`, receiptData);
+      console.log(`Receipt ${id}:`, {
+        id: Number(receiptData.id),
+        issuer: receiptData.issuer,
+        recipient: receiptData.recipient,
+        status: Number(receiptData.status),
+        deadline: Number(receiptData.deadline),
+        exists: receiptData.exists
+      });
+
+      if (!receiptData.exists || !receiptData.recipient) {
+        console.warn(`Invalid receipt ${id}:`, { exists: receiptData.exists, recipient: receiptData.recipient });
+        throw new Error('Receipt does not exist or has invalid data');
       }
 
-      setReceiptData({
-        ...receipt,
-        id: receipt.id.toString(),
-        amount: receipt.amount,
-        timestamp: receipt.timestamp.toNumber(),
-        status: receipt.status
-      });
+      const blockTimestamp = Math.floor(Date.now() / 1000);
+      const isExpired = receiptData.status === 0 && blockTimestamp > Number(receiptData.deadline) && Number(receiptData.deadline) > 0;
       
+      setReceipt({
+        id: Number(receiptData.id),
+        vendorName: receiptData.vendorName,
+        description: receiptData.description,
+        amount: receiptData.amount,
+        status: isExpired ? 6 : Number(receiptData.status),
+        transactionDate: Number(receiptData.transactionDate) ? new Date(Number(receiptData.transactionDate) * 1000) : new Date(0),
+        requestTimestamp: Number(receiptData.requestTimestamp) ? new Date(Number(receiptData.requestTimestamp) * 1000) : new Date(0),
+        deadline: Number(receiptData.deadline) > 0 ? new Date(Number(receiptData.deadline) * 1000) : new Date(0),
+        issuer: receiptData.issuer,
+        recipient: receiptData.recipient,
+        rejectionReason: receiptData.rejectionReason || '',
+        disputeReason: receiptData.disputeReason || ''
+      });
     } catch (error) {
       console.error('Error loading receipt:', error);
-      toast.error('Failed to load receipt');
-      navigate('/');
+      toast.error(error.reason || error.message || 'Failed to load receipt');
+      navigate('/'); // Redirect to home if receipt not found
     } finally {
       setLoading(false);
     }
   };
 
-  const handleVerifyReceipt = async () => {
-    if (!receiptData) return;
-
-    setVerifying(true);
-    try {
-      const tx = await contract.verifyReceipt(receiptData.id);
-      
-      toast.loading('Verifying receipt...', { id: 'verify-receipt' });
-      
-      const receipt = await waitForTransaction(tx.hash);
-      
-      if (receipt.status === 1) {
-        toast.success('Receipt verified successfully!', { id: 'verify-receipt' });
-        await loadReceiptData();
-      } else {
-        throw new Error('Transaction failed');
-      }
-      
-    } catch (error) {
-      console.error('Error verifying receipt:', error);
-      toast.error(
-        error.reason || error.message || 'Failed to verify receipt',
-        { id: 'verify-receipt' }
-      );
-    } finally {
-      setVerifying(false);
-    }
-  };
-
-  const handleDisputeReceipt = async () => {
-    if (!receiptData) return;
-
-    const confirmed = window.confirm(
-      'Are you sure you want to dispute this receipt? This action cannot be undone.'
-    );
-    
-    if (!confirmed) return;
-
-    setDisputing(true);
-    try {
-      const tx = await contract.disputeReceipt(receiptData.id);
-      
-      toast.loading('Disputing receipt...', { id: 'dispute-receipt' });
-      
-      const receipt = await waitForTransaction(tx.hash);
-      
-      if (receipt.status === 1) {
-        toast.success('Receipt disputed successfully!', { id: 'dispute-receipt' });
-        await loadReceiptData();
-      } else {
-        throw new Error('Transaction failed');
-      }
-      
-    } catch (error) {
-      console.error('Error disputing receipt:', error);
-      toast.error(
-        error.reason || error.message || 'Failed to dispute receipt',
-        { id: 'dispute-receipt' }
-      );
-    } finally {
-      setDisputing(false);
-    }
-  };
-
-  const handleCancelReceipt = async () => {
-    if (!receiptData) return;
-
-    const confirmed = window.confirm(
-      'Are you sure you want to cancel this receipt? This action cannot be undone.'
-    );
-    
-    if (!confirmed) return;
-
-    setCancelling(true);
-    try {
-      const tx = await contract.cancelReceipt(receiptData.id);
-      
-      toast.loading('Cancelling receipt...', { id: 'cancel-receipt' });
-      
-      const receipt = await waitForTransaction(tx.hash);
-      
-      if (receipt.status === 1) {
-        toast.success('Receipt cancelled successfully!', { id: 'cancel-receipt' });
-        await loadReceiptData();
-      } else {
-        throw new Error('Transaction failed');
-      }
-      
-    } catch (error) {
-      console.error('Error cancelling receipt:', error);
-      toast.error(
-        error.reason || error.message || 'Failed to cancel receipt',
-        { id: 'cancel-receipt' }
-      );
-    } finally {
-      setCancelling(false);
-    }
-  };
-
-  const canVerify = () => {
-    if (!receiptData || !account) return false;
-    
-    return (
-      receiptData.status === 0 && // Pending
-      receiptData.recipient.toLowerCase() === account.toLowerCase()
-    );
-  };
-
   const canDispute = () => {
-    if (!receiptData || !account) return false;
-    
-    return (
-      (receiptData.status === 0 || receiptData.status === 1) && // Pending or Verified
-      (receiptData.recipient.toLowerCase() === account.toLowerCase() ||
-       receiptData.issuer.toLowerCase() === account.toLowerCase())
+    if (!receipt || !receipt.recipient || !account) {
+      console.warn('Invalid receipt or account for dispute check:', { receipt, account });
+      return false;
+    }
+    const can = (
+      (receipt.status === 1 || receipt.status === 3) && // Approved or Verified
+      (
+        receipt.issuer.toLowerCase() === account.toLowerCase() ||
+        receipt.recipient.toLowerCase() === account.toLowerCase()
+      )
     );
+    console.log(`Can dispute receipt ${receipt.id}:`, {
+      status: receipt.status,
+      issuer: receipt.issuer,
+      recipient: receipt.recipient,
+      account,
+      can
+    });
+    return can;
   };
 
   const canCancel = () => {
-    if (!receiptData || !account) return false;
-    
+    if (!receipt || !receipt.recipient || !account) {
+      console.warn('Invalid receipt or account for cancel check:', { receipt, account });
+      return false;
+    }
     return (
-      receiptData.status === 0 && // Pending
-      receiptData.issuer.toLowerCase() === account.toLowerCase()
+      receipt.status === 0 && // Requested
+      receipt.recipient.toLowerCase() === account.toLowerCase()
     );
+  };
+
+  const handleDispute = async () => {
+    if (!disputeReason.trim()) {
+      setDisputeError('Dispute reason cannot be empty');
+      return;
+    }
+
+    try {
+      setProcessing(true);
+      const tx = await contract.disputeReceipt(receipt.id, disputeReason.trim());
+      toast.loading('Disputing receipt...', { id: `dispute-${receipt.id}` });
+      
+      await waitForTransaction(tx.hash);
+      
+      toast.success('Receipt disputed successfully!', { id: `dispute-${receipt.id}` });
+      await loadReceipt();
+      setIsDisputeModalOpen(false);
+      setDisputeReason('');
+      setDisputeError('');
+    } catch (error) {
+      console.error('Error disputing receipt:', error);
+      toast.error(`Failed to dispute receipt: ${error.reason || error.message}`, { id: `dispute-${receipt.id}` });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleCancel = async () => {
+    try {
+      setProcessing(true);
+      const tx = await contract.cancelReceipt(receipt.id);
+      toast.loading('Cancelling receipt...', { id: `cancel-${receipt.id}` });
+      
+      await waitForTransaction(tx.hash);
+      
+      toast.success('Receipt cancelled successfully!', { id: `cancel-${receipt.id}` });
+      await loadReceipt();
+      setIsCancelModalOpen(false);
+    } catch (error) {
+      console.error('Error cancelling receipt:', error);
+      toast.error(`Failed to cancel receipt: ${error.reason || error.message}`, { id: `cancel-${receipt.id}` });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const formatDate = (date) => {
+    if (!date || isNaN(date.getTime()) || date.getTime() === 0) {
+      return 'N/A';
+    }
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 0: // Pending
-        return <AlertTriangle className="h-6 w-6 text-warning-600" />;
-      case 1: // Verified
-        return <CheckCircle className="h-6 w-6 text-success-600" />;
-      case 2: // Disputed
-        return <XCircle className="h-6 w-6 text-danger-600" />;
-      case 3: // Cancelled
-        return <XCircle className="h-6 w-6 text-gray-600" />;
-      default:
-        return null;
+      case 0: return <Clock className="h-4 w-4 text-yellow-600" />;
+      case 1: return <CheckCircle className="h-4 w-4 text-blue-600" />;
+      case 2: return <XCircle className="h-4 w-4 text-red-600" />;
+      case 3: return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case 4: return <AlertCircle className="h-4 w-4 text-orange-600" />;
+      case 5: return <XCircle className="h-4 w-4 text-gray-600" />;
+      case 6: return <AlertCircle className="h-4 w-4 text-gray-600" />;
+      default: return <AlertCircle className="h-4 w-4 text-gray-600" />;
     }
   };
 
-  const getStatusBadge = (status) => {
-    const statusText = RECEIPT_STATUS[status];
-    const colorClass = `badge-${STATUS_COLORS[status]}`;
-    
-    return (
-      <span className={`badge ${colorClass} flex items-center space-x-2 text-base px-4 py-2`}>
-        {getStatusIcon(status)}
-        <span>{statusText}</span>
-      </span>
-    );
+  const getStatusColor = (status) => {
+    const colorMap = {
+      0: 'bg-yellow-100 text-yellow-800',
+      1: 'bg-blue-100 text-blue-800',
+      2: 'bg-red-100 text-red-800',
+      3: 'bg-green-100 text-green-800',
+      4: 'bg-orange-100 text-orange-800',
+      5: 'bg-gray-100 text-gray-800',
+      6: 'bg-gray-100 text-gray-800'
+    };
+    return colorMap[status] || 'bg-gray-100 text-gray-800';
   };
-
-  const formatDate = (timestamp) => {
-    return new Date(timestamp * 1000).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZoneName: 'short'
-    });
-  };
-
-  const handleShare = () => {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url);
-    toast.success('Receipt link copied to clipboard!');
-  };
-
-  const handleDownload = () => {
-    // Create a simple text representation of the receipt
-    const receiptText = `
-BLOCKCHAIN RECEIPT
-==================
-
-Receipt ID: ${receiptData.id}
-Business: ${receiptData.businessName || 'N/A'}
-Description: ${receiptData.description}
-Amount: ${formatEther(receiptData.amount)} ETH
-Status: ${RECEIPT_STATUS[receiptData.status]}
-Date: ${formatDate(receiptData.timestamp)}
-
-Issuer: ${receiptData.issuer}
-Recipient: ${receiptData.recipient}
-
-Verified on blockchain at: ${window.location.origin}
-    `;
-
-    const blob = new Blob([receiptText], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `receipt-${receiptData.id}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  if (!isConnected) {
-    return (
-      <div className="text-center py-12">
-        <Receipt className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">
-          Connect Your Wallet
-        </h3>
-        <p className="mt-1 text-sm text-gray-500">
-          You need to connect your wallet to view receipt details.
-        </p>
-      </div>
-    );
-  }
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <div className="loading-spinner"></div>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-2 text-gray-600">Loading receipt details...</p>
+          </div>
+        </div>
       </div>
     );
   }
 
-  if (!receiptData) {
+  if (!receipt) {
     return (
-      <div className="text-center py-12">
-        <Receipt className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">
-          Receipt Not Found
-        </h3>
-        <p className="mt-1 text-sm text-gray-500">
-          The requested receipt could not be found.
-        </p>
-        <button
-          onClick={() => navigate('/')}
-          className="mt-4 btn-primary"
-        >
-          Back to Dashboard
-        </button>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center py-8">
+            <Receipt className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Receipt not found</h3>
+            <p className="text-gray-600">The requested receipt does not exist.</p>
+            <Link to="/" className="mt-4 btn-primary inline-flex items-center space-x-2">
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Dashboard</span>
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={() => navigate('/')}
-            className="btn-outline flex items-center space-x-2"
-          >
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6">
+          <Link to="/" className="flex items-center text-blue-600 hover:text-blue-800 space-x-2">
             <ArrowLeft className="h-4 w-4" />
-            <span>Back</span>
-          </button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Receipt #{receiptData.id}
-            </h1>
-            <p className="text-gray-600">
-              Blockchain-verified digital receipt
-            </p>
-          </div>
+            <span>Back to Customer Dashboard</span>
+          </Link>
         </div>
-        
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={handleShare}
-            className="btn-outline flex items-center space-x-2"
-          >
-            <Share className="h-4 w-4" />
-            <span>Share</span>
-          </button>
-          <button
-            onClick={handleDownload}
-            className="btn-outline flex items-center space-x-2"
-          >
-            <Download className="h-4 w-4" />
-            <span>Download</span>
-          </button>
-        </div>
-      </div>
 
-      {/* Status Banner */}
-      <div className="flex justify-center">
-        {getStatusBadge(receiptData.status)}
-      </div>
-
-      {/* Receipt Details */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Business Information */}
-        <div className="card">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center space-x-2">
-            <Building2 className="h-5 w-5" />
-            <span>Business Information</span>
-          </h2>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-500">Business Name</label>
-              <p className="text-lg text-gray-900 mt-1">
-                {receiptData.businessName || 'N/A'}
-              </p>
+        <div className="bg-white shadow rounded-lg p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <Receipt className="h-8 w-8 text-blue-600" />
+              <h1 className="text-2xl font-bold text-gray-900">Receipt #{receipt.id}</h1>
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(receipt.status)}`}>
+                {getStatusIcon(receipt.status)}
+                <span className="ml-1">{RECEIPT_STATUS[receipt.status]}</span>
+              </span>
             </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-500">Issuer Address</label>
-              <p className="text-gray-900 font-mono text-sm mt-1 break-all">
-                {receiptData.issuer}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Customer Information */}
-        <div className="card">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center space-x-2">
-            <User className="h-5 w-5" />
-            <span>Customer Information</span>
-          </h2>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-500">Recipient</label>
-              <p className="text-gray-900 font-mono text-sm mt-1 break-all">
-                {receiptData.recipient}
-              </p>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-500">Your Role</label>
-              <p className="text-lg text-gray-900 mt-1">
-                {receiptData.issuer.toLowerCase() === account?.toLowerCase() 
-                  ? 'Issuer (Business)' 
-                  : receiptData.recipient.toLowerCase() === account?.toLowerCase()
-                  ? 'Recipient (Customer)'
-                  : 'Third Party'
-                }
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Transaction Details */}
-      <div className="card">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center space-x-2">
-          <DollarSign className="h-5 w-5" />
-          <span>Transaction Details</span>
-        </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-500">Amount</label>
-            <p className="text-3xl font-bold text-gray-900 mt-1">
-              {formatEther(receiptData.amount)} ETH
-            </p>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-500">Date & Time</label>
-            <div className="flex items-center space-x-2 mt-1">
-              <Calendar className="h-4 w-4 text-gray-400" />
-              <p className="text-lg text-gray-900">
-                {formatDate(receiptData.timestamp)}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Description */}
-      <div className="card">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Description</h2>
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <p className="text-gray-900 whitespace-pre-wrap">
-            {receiptData.description}
-          </p>
-        </div>
-      </div>
-
-      {/* Document/IPFS Hash */}
-      {receiptData.ipfsHash && receiptData.ipfsHash !== 'No document attached' && (
-        <div className="card">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-            <Hash className="h-5 w-5" />
-            <span>Attached Document</span>
-          </h2>
-          <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
-            <p className="text-gray-900 font-mono text-sm break-all flex-1 mr-4">
-              {receiptData.ipfsHash}
-            </p>
-            <button
-              onClick={() => window.open(`https://ipfs.io/ipfs/${receiptData.ipfsHash}`, '_blank')}
-              className="btn-outline flex items-center space-x-2 flex-shrink-0"
-            >
-              <ExternalLink className="h-4 w-4" />
-              <span>View Document</span>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Actions */}
-      <div className="card">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Actions</h2>
-        <div className="flex flex-wrap gap-3">
-          {canVerify() && (
-            <button
-              onClick={handleVerifyReceipt}
-              disabled={verifying}
-              className="btn-success flex items-center space-x-2"
-            >
-              {verifying ? (
-                <>
-                  <div className="loading-spinner"></div>
-                  <span>Verifying...</span>
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="h-4 w-4" />
-                  <span>Verify Receipt</span>
-                </>
+            <div className="flex space-x-3">
+              {canDispute() && (
+                <button
+                  onClick={() => setIsDisputeModalOpen(true)}
+                  disabled={processing}
+                  className="btn-secondary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <AlertCircle className="h-4 w-4" />
+                  <span>Dispute</span>
+                </button>
               )}
-            </button>
-          )}
-
-          {canDispute() && (
-            <button
-              onClick={handleDisputeReceipt}
-              disabled={disputing}
-              className="btn-danger flex items-center space-x-2"
-            >
-              {disputing ? (
-                <>
-                  <div className="loading-spinner"></div>
-                  <span>Disputing...</span>
-                </>
-              ) : (
-                <>
-                  <AlertTriangle className="h-4 w-4" />
-                  <span>Dispute Receipt</span>
-                </>
-              )}
-            </button>
-          )}
-
-          {canCancel() && (
-            <button
-              onClick={handleCancelReceipt}
-              disabled={cancelling}
-              className="btn-secondary flex items-center space-x-2"
-            >
-              {cancelling ? (
-                <>
-                  <div className="loading-spinner"></div>
-                  <span>Cancelling...</span>
-                </>
-              ) : (
-                <>
+              {canCancel() && (
+                <button
+                  onClick={() => setIsCancelModalOpen(true)}
+                  disabled={processing}
+                  className="btn-secondary flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
                   <XCircle className="h-4 w-4" />
-                  <span>Cancel Receipt</span>
-                </>
+                  <span>Cancel</span>
+                </button>
               )}
-            </button>
-          )}
-        </div>
-        
-        {!canVerify() && !canDispute() && !canCancel() && (
-          <p className="text-gray-500 text-sm">
-            No actions available for this receipt.
-          </p>
-        )}
-      </div>
+            </div>
+          </div>
 
-      {/* Blockchain Info */}
-      <div className="card bg-gray-50">
-        <h3 className="text-lg font-medium text-gray-900 mb-3">
-          🔗 Blockchain Information
-        </h3>
-        <div className="text-sm text-gray-600 space-y-1">
-          <p>This receipt is permanently stored on the Ethereum blockchain</p>
-          <p>Receipt ID: #{receiptData.id}</p>
-          <p>Status: {RECEIPT_STATUS[receiptData.status]}</p>
-          <p>All transactions are immutable and publicly verifiable</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <p className="text-sm text-gray-600">Vendor</p>
+              <p className="font-mono text-sm">{formatAddress(receipt.issuer)}</p>
+              {receipt.vendorName && (
+                <p className="text-sm text-gray-900">{receipt.vendorName}</p>
+              )}
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Customer</p>
+              <p className="font-mono text-sm">{formatAddress(receipt.recipient)}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Amount</p>
+              <p className="text-lg font-semibold">{formatEther(receipt.amount)} ETH</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Transaction Date</p>
+              <p>{formatDate(receipt.transactionDate)}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Requested</p>
+              <p>{formatDate(receipt.requestTimestamp)}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Deadline</p>
+              <p>{formatDate(receipt.deadline)}</p>
+            </div>
+            {receipt.description && (
+              <div className="col-span-2">
+                <p className="text-sm text-gray-600">Description</p>
+                <p className="text-gray-900">{receipt.description}</p>
+              </div>
+            )}
+            {receipt.rejectionReason && (
+              <div className="col-span-2">
+                <p className="text-sm text-gray-600">Rejection Reason</p>
+                <p className="text-red-600">{receipt.rejectionReason}</p>
+              </div>
+            )}
+            {receipt.disputeReason && (
+              <div className="col-span-2">
+                <p className="text-sm text-gray-600">Dispute Reason</p>
+                <p className="text-orange-600">{receipt.disputeReason}</p>
+              </div>
+            )}
+          </div>
         </div>
+
+        {isDisputeModalOpen && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Dispute Receipt #{receipt.id}</h3>
+              <div className="mb-4">
+                <label htmlFor="disputeReason" className="block text-sm font-medium text-gray-700">
+                  Reason for Dispute
+                </label>
+                <textarea
+                  id="disputeReason"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  rows="4"
+                  value={disputeReason}
+                  onChange={(e) => {
+                    setDisputeReason(e.target.value);
+                    setDisputeError('');
+                  }}
+                  placeholder="Enter the reason for disputing this receipt"
+                />
+                {disputeError && (
+                  <p className="mt-2 text-sm text-red-600">{disputeError}</p>
+                )}
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    setIsDisputeModalOpen(false);
+                    setDisputeReason('');
+                    setDisputeError('');
+                  }}
+                  className="btn-secondary px-4 py-2 text-sm font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDispute}
+                  disabled={processing}
+                  className="btn-primary px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Confirm Dispute
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isCancelModalOpen && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Cancel Receipt #{receipt.id}</h3>
+              <p className="text-sm text-gray-600 mb-4">Are you sure you want to cancel this receipt request?</p>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setIsCancelModalOpen(false)}
+                  className="btn-secondary px-4 py-2 text-sm font-medium"
+                >
+                  No, Keep Request
+                </button>
+                <button
+                  onClick={handleCancel}
+                  disabled={processing}
+                  className="btn-primary px-4 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Yes, Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
