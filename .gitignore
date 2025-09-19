@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Dependencies
 node_modules/
 frontend/node_modules/
@@ -133,3 +134,19 @@ typechain
 # Coverage
 coverage.json
 coverageEnv
+=======
+# Compiler files
+cache/
+out/
+
+# Ignores development broadcast logs
+!/broadcast
+/broadcast/*/31337/
+/broadcast/**/dry-run/
+
+# Docs
+docs/
+
+# Dotenv file
+.env
+>>>>>>> 7542300c0bd58e8263d9ae3eabfe621c1bbeaf0e
