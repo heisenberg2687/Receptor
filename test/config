@@ -1,0 +1,14 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+[submodule "lib/forge-std"]
+	url = https://github.com/foundry-rs/forge-std
+	active = true
+[submodule "lib/openzeppelin-contracts"]
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+	active = true
+[remote "origin"]
+	url = https://github.com/heisenberg2687/Receptor.git
+	fetch = +refs/heads/*:refs/remotes/origin/*

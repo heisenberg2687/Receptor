@@ -1,0 +1,48 @@
+specVersion: 1.3.0
+indexerHints:
+  prune: auto
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: ReceiptVerification
+    network: sepolia
+    source:
+      address: "0xc18866f893E6f79451e63c30b2564E9CF3e9f5E9"
+      abi: ReceiptVerification
+      startBlock: 9219751
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - BusinessRegistered
+        - OwnershipTransferred
+        - ReceiptApproved
+        - ReceiptCancelled
+        - ReceiptDisputed
+        - ReceiptRejected
+        - ReceiptRequested
+        - ReceiptVerified
+      abis:
+        - name: ReceiptVerification
+          file: ReceiptVerification\ReceiptVerification.json
+      eventHandlers:
+        - event: BusinessRegistered(indexed address,string,uint256)
+          handler: handleBusinessRegistered
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: ReceiptApproved(indexed uint256,indexed address,uint256)
+          handler: handleReceiptApproved
+        - event: ReceiptCancelled(indexed uint256,indexed address,uint256)
+          handler: handleReceiptCancelled
+        - event: ReceiptDisputed(indexed uint256,indexed address,string,uint256)
+          handler: handleReceiptDisputed
+        - event: ReceiptRejected(indexed uint256,indexed address,string,uint256)
+          handler: handleReceiptRejected
+        - event: ReceiptRequested(indexed uint256,indexed address,indexed
+            address,string,uint256,uint256,uint256,uint256)
+          handler: handleReceiptRequested
+        - event: ReceiptVerified(indexed uint256,indexed address,uint256)
+          handler: handleReceiptVerified
+      file: ReceiptVerification\ReceiptVerification.wasm
