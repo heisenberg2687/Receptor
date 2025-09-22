@@ -8,9 +8,9 @@ dataSources:
     name: ReceiptVerification
     network: sepolia
     source:
-      address: "0xc18866f893E6f79451e63c30b2564E9CF3e9f5E9"
+      address: "0x9985a4e372a83DfD0aC860f61f4C8FC77CA13Dfa"
       abi: ReceiptVerification
-      startBlock: 9219751
+      startBlock: 9255645
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9

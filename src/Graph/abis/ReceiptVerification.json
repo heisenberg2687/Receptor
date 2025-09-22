@@ -1,523 +1,523 @@
 [
-  { "type": "constructor", "inputs": [], "stateMutability": "nonpayable" },
+  { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" },
   {
+    "inputs": [
+      { "internalType": "address", "name": "owner", "type": "address" }
+    ],
     "name": "OwnableInvalidOwner",
-    "type": "error",
-    "inputs": [
-      { "name": "owner", "type": "address", "internalType": "address" }
-    ]
+    "type": "error"
   },
   {
+    "inputs": [
+      { "internalType": "address", "name": "account", "type": "address" }
+    ],
     "name": "OwnableUnauthorizedAccount",
-    "type": "error",
-    "inputs": [
-      { "name": "account", "type": "address", "internalType": "address" }
-    ]
+    "type": "error"
   },
-  { "name": "ReentrancyGuardReentrantCall", "type": "error", "inputs": [] },
+  { "inputs": [], "name": "ReentrancyGuardReentrantCall", "type": "error" },
   {
-    "name": "BusinessRegistered",
-    "type": "event",
+    "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
         "name": "businessAddress",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
+        "type": "address"
       },
       {
+        "indexed": false,
+        "internalType": "string",
         "name": "businessName",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
+        "type": "string"
       },
       {
-        "name": "timestamp",
-        "type": "uint256",
         "indexed": false,
-        "internalType": "uint256"
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       }
     ],
-    "anonymous": false
+    "name": "BusinessRegistered",
+    "type": "event"
   },
   {
-    "name": "OwnershipTransferred",
-    "type": "event",
+    "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
         "name": "previousOwner",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
+        "type": "address"
       },
       {
+        "indexed": true,
+        "internalType": "address",
         "name": "newOwner",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
+        "type": "address"
       }
     ],
-    "anonymous": false
+    "name": "OwnershipTransferred",
+    "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "receiptId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "vendor",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
     "name": "ReceiptApproved",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "receiptId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "vendor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "timestamp",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
+    "type": "event"
   },
   {
-    "name": "ReceiptCancelled",
-    "type": "event",
+    "anonymous": false,
     "inputs": [
       {
-        "name": "receiptId",
-        "type": "uint256",
         "indexed": true,
-        "internalType": "uint256"
+        "internalType": "uint256",
+        "name": "receiptId",
+        "type": "uint256"
       },
       {
+        "indexed": true,
+        "internalType": "address",
         "name": "canceller",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
+        "type": "address"
       },
       {
-        "name": "timestamp",
-        "type": "uint256",
         "indexed": false,
-        "internalType": "uint256"
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       }
     ],
-    "anonymous": false
+    "name": "ReceiptCancelled",
+    "type": "event"
   },
   {
-    "name": "ReceiptDisputed",
-    "type": "event",
+    "anonymous": false,
     "inputs": [
       {
-        "name": "receiptId",
-        "type": "uint256",
         "indexed": true,
-        "internalType": "uint256"
+        "internalType": "uint256",
+        "name": "receiptId",
+        "type": "uint256"
       },
       {
+        "indexed": true,
+        "internalType": "address",
         "name": "disputer",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
+        "type": "address"
       },
       {
+        "indexed": false,
+        "internalType": "string",
         "name": "reason",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
+        "type": "string"
       },
       {
-        "name": "timestamp",
-        "type": "uint256",
         "indexed": false,
-        "internalType": "uint256"
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       }
     ],
-    "anonymous": false
+    "name": "ReceiptDisputed",
+    "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "receiptId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "vendor",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "reason",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
     "name": "ReceiptRejected",
-    "type": "event",
-    "inputs": [
-      {
-        "name": "receiptId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "vendor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "reason",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
-      },
-      {
-        "name": "timestamp",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
+    "type": "event"
   },
   {
-    "name": "ReceiptRequested",
-    "type": "event",
+    "anonymous": false,
     "inputs": [
       {
-        "name": "receiptId",
-        "type": "uint256",
         "indexed": true,
-        "internalType": "uint256"
+        "internalType": "uint256",
+        "name": "receiptId",
+        "type": "uint256"
       },
       {
+        "indexed": true,
+        "internalType": "address",
         "name": "customer",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
+        "type": "address"
       },
       {
+        "indexed": true,
+        "internalType": "address",
         "name": "vendor",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
+        "type": "address"
       },
       {
+        "indexed": false,
+        "internalType": "string",
         "name": "vendorName",
-        "type": "string",
-        "indexed": false,
-        "internalType": "string"
+        "type": "string"
       },
       {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "amount",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
+        "type": "uint256"
       },
       {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "transactionDate",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
+        "type": "uint256"
       },
       {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "timestamp",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
+        "type": "uint256"
       },
       {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "deadline",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
+        "type": "uint256"
       }
     ],
-    "anonymous": false
+    "name": "ReceiptRequested",
+    "type": "event"
   },
   {
-    "name": "ReceiptVerified",
-    "type": "event",
+    "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "uint256",
         "name": "receiptId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
+        "type": "uint256"
       },
       {
+        "indexed": true,
+        "internalType": "address",
         "name": "verifier",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
+        "type": "address"
       },
       {
-        "name": "timestamp",
-        "type": "uint256",
         "indexed": false,
-        "internalType": "uint256"
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       }
     ],
-    "anonymous": false
+    "name": "ReceiptVerified",
+    "type": "event"
   },
   {
+    "inputs": [
+      { "internalType": "uint256", "name": "_receiptId", "type": "uint256" }
+    ],
     "name": "approveReceipt",
-    "type": "function",
-    "inputs": [
-      { "name": "_receiptId", "type": "uint256", "internalType": "uint256" }
-    ],
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
     "name": "businessReceipts",
-    "type": "function",
-    "inputs": [
-      { "name": "", "type": "address", "internalType": "address" },
-      { "name": "", "type": "uint256", "internalType": "uint256" }
-    ],
-    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
-    "stateMutability": "view"
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "name": "businesses",
-    "type": "function",
-    "inputs": [{ "name": "", "type": "address", "internalType": "address" }],
     "outputs": [
-      { "name": "name", "type": "string", "internalType": "string" },
-      { "name": "description", "type": "string", "internalType": "string" },
-      { "name": "owner", "type": "address", "internalType": "address" },
-      { "name": "isActive", "type": "bool", "internalType": "bool" },
-      { "name": "totalReceipts", "type": "uint256", "internalType": "uint256" }
+      { "internalType": "string", "name": "name", "type": "string" },
+      { "internalType": "string", "name": "description", "type": "string" },
+      { "internalType": "address", "name": "owner", "type": "address" },
+      { "internalType": "bool", "name": "isActive", "type": "bool" },
+      { "internalType": "uint256", "name": "totalReceipts", "type": "uint256" }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "uint256", "name": "_receiptId", "type": "uint256" }
+    ],
     "name": "cancelReceipt",
-    "type": "function",
-    "inputs": [
-      { "name": "_receiptId", "type": "uint256", "internalType": "uint256" }
-    ],
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "uint256", "name": "_receiptId", "type": "uint256" },
+      { "internalType": "string", "name": "_reason", "type": "string" }
+    ],
     "name": "disputeReceipt",
-    "type": "function",
-    "inputs": [
-      { "name": "_receiptId", "type": "uint256", "internalType": "uint256" },
-      { "name": "_reason", "type": "string", "internalType": "string" }
-    ],
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "address", "name": "_business", "type": "address" }
+    ],
     "name": "getBusinessReceipts",
-    "type": "function",
-    "inputs": [
-      { "name": "_business", "type": "address", "internalType": "address" }
-    ],
     "outputs": [
-      { "name": "", "type": "uint256[]", "internalType": "uint256[]" }
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "address", "name": "_vendor", "type": "address" }
+    ],
     "name": "getPendingRequests",
-    "type": "function",
-    "inputs": [
-      { "name": "_vendor", "type": "address", "internalType": "address" }
-    ],
     "outputs": [
-      { "name": "", "type": "uint256[]", "internalType": "uint256[]" }
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "name": "getReceipt",
-    "type": "function",
     "inputs": [
-      { "name": "_receiptId", "type": "uint256", "internalType": "uint256" }
+      { "internalType": "uint256", "name": "_receiptId", "type": "uint256" }
     ],
+    "name": "getReceipt",
     "outputs": [
       {
-        "name": "",
-        "type": "tuple",
         "components": [
-          { "name": "id", "type": "uint256", "internalType": "uint256" },
-          { "name": "issuer", "type": "address", "internalType": "address" },
-          { "name": "recipient", "type": "address", "internalType": "address" },
-          { "name": "vendorName", "type": "string", "internalType": "string" },
-          { "name": "description", "type": "string", "internalType": "string" },
-          { "name": "amount", "type": "uint256", "internalType": "uint256" },
+          { "internalType": "uint256", "name": "id", "type": "uint256" },
+          { "internalType": "address", "name": "issuer", "type": "address" },
+          { "internalType": "address", "name": "recipient", "type": "address" },
+          { "internalType": "string", "name": "vendorName", "type": "string" },
+          { "internalType": "string", "name": "description", "type": "string" },
+          { "internalType": "uint256", "name": "amount", "type": "uint256" },
           {
+            "internalType": "uint256",
             "name": "transactionDate",
-            "type": "uint256",
-            "internalType": "uint256"
+            "type": "uint256"
           },
           {
+            "internalType": "uint256",
             "name": "requestTimestamp",
-            "type": "uint256",
-            "internalType": "uint256"
+            "type": "uint256"
           },
-          { "name": "deadline", "type": "uint256", "internalType": "uint256" },
+          { "internalType": "uint256", "name": "deadline", "type": "uint256" },
           {
+            "internalType": "enum ReceiptVerification.ReceiptStatus",
             "name": "status",
-            "type": "uint8",
-            "internalType": "enum ReceiptVerification.ReceiptStatus"
+            "type": "uint8"
           },
-          { "name": "ipfsHash", "type": "string", "internalType": "string" },
+          { "internalType": "string", "name": "ipfsHash", "type": "string" },
           {
+            "internalType": "string",
             "name": "rejectionReason",
-            "type": "string",
-            "internalType": "string"
+            "type": "string"
           },
           {
+            "internalType": "string",
             "name": "disputeReason",
-            "type": "string",
-            "internalType": "string"
+            "type": "string"
           },
-          { "name": "exists", "type": "bool", "internalType": "bool" }
+          { "internalType": "bool", "name": "exists", "type": "bool" }
         ],
-        "internalType": "struct ReceiptVerification.Receipt"
+        "internalType": "struct ReceiptVerification.Receipt",
+        "name": "",
+        "type": "tuple"
       }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
+    "inputs": [],
     "name": "getTotalReceipts",
-    "type": "function",
-    "inputs": [],
-    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
-    "stateMutability": "view"
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "address", "name": "_user", "type": "address" }
+    ],
     "name": "getUserReceipts",
-    "type": "function",
-    "inputs": [
-      { "name": "_user", "type": "address", "internalType": "address" }
-    ],
     "outputs": [
-      { "name": "", "type": "uint256[]", "internalType": "uint256[]" }
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
+    "inputs": [],
     "name": "owner",
-    "type": "function",
-    "inputs": [],
-    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
-    "stateMutability": "view"
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "name": "receipts",
-    "type": "function",
-    "inputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
     "outputs": [
-      { "name": "id", "type": "uint256", "internalType": "uint256" },
-      { "name": "issuer", "type": "address", "internalType": "address" },
-      { "name": "recipient", "type": "address", "internalType": "address" },
-      { "name": "vendorName", "type": "string", "internalType": "string" },
-      { "name": "description", "type": "string", "internalType": "string" },
-      { "name": "amount", "type": "uint256", "internalType": "uint256" },
+      { "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "internalType": "address", "name": "issuer", "type": "address" },
+      { "internalType": "address", "name": "recipient", "type": "address" },
+      { "internalType": "string", "name": "vendorName", "type": "string" },
+      { "internalType": "string", "name": "description", "type": "string" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" },
       {
+        "internalType": "uint256",
         "name": "transactionDate",
-        "type": "uint256",
-        "internalType": "uint256"
+        "type": "uint256"
       },
       {
+        "internalType": "uint256",
         "name": "requestTimestamp",
-        "type": "uint256",
-        "internalType": "uint256"
+        "type": "uint256"
       },
-      { "name": "deadline", "type": "uint256", "internalType": "uint256" },
+      { "internalType": "uint256", "name": "deadline", "type": "uint256" },
       {
+        "internalType": "enum ReceiptVerification.ReceiptStatus",
         "name": "status",
-        "type": "uint8",
-        "internalType": "enum ReceiptVerification.ReceiptStatus"
+        "type": "uint8"
       },
-      { "name": "ipfsHash", "type": "string", "internalType": "string" },
-      { "name": "rejectionReason", "type": "string", "internalType": "string" },
-      { "name": "disputeReason", "type": "string", "internalType": "string" },
-      { "name": "exists", "type": "bool", "internalType": "bool" }
+      { "internalType": "string", "name": "ipfsHash", "type": "string" },
+      { "internalType": "string", "name": "rejectionReason", "type": "string" },
+      { "internalType": "string", "name": "disputeReason", "type": "string" },
+      { "internalType": "bool", "name": "exists", "type": "bool" }
     ],
-    "stateMutability": "view"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "string", "name": "_name", "type": "string" },
+      { "internalType": "string", "name": "_description", "type": "string" }
+    ],
     "name": "registerBusiness",
-    "type": "function",
-    "inputs": [
-      { "name": "_name", "type": "string", "internalType": "string" },
-      { "name": "_description", "type": "string", "internalType": "string" }
-    ],
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "uint256", "name": "_receiptId", "type": "uint256" },
+      { "internalType": "string", "name": "_reason", "type": "string" }
+    ],
     "name": "rejectReceipt",
-    "type": "function",
-    "inputs": [
-      { "name": "_receiptId", "type": "uint256", "internalType": "uint256" },
-      { "name": "_reason", "type": "string", "internalType": "string" }
-    ],
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "name": "renounceOwnership",
-    "type": "function",
     "inputs": [],
+    "name": "renounceOwnership",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "name": "requestReceipt",
-    "type": "function",
     "inputs": [
       {
+        "internalType": "address",
         "name": "_vendorAddress",
-        "type": "address",
-        "internalType": "address"
+        "type": "address"
       },
-      { "name": "_vendorName", "type": "string", "internalType": "string" },
-      { "name": "_description", "type": "string", "internalType": "string" },
-      { "name": "_amount", "type": "uint256", "internalType": "uint256" },
+      { "internalType": "string", "name": "_vendorName", "type": "string" },
+      { "internalType": "string", "name": "_description", "type": "string" },
+      { "internalType": "uint256", "name": "_amount", "type": "uint256" },
       {
+        "internalType": "uint256",
         "name": "_transactionDate",
-        "type": "uint256",
-        "internalType": "uint256"
+        "type": "uint256"
       },
-      { "name": "_ipfsHash", "type": "string", "internalType": "string" }
+      { "internalType": "string", "name": "_ipfsHash", "type": "string" }
     ],
+    "name": "requestReceipt",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "uint256", "name": "_period", "type": "uint256" }
+    ],
     "name": "setStatusChangePeriod",
-    "type": "function",
-    "inputs": [
-      { "name": "_period", "type": "uint256", "internalType": "uint256" }
-    ],
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "address", "name": "newOwner", "type": "address" }
+    ],
     "name": "transferOwnership",
-    "type": "function",
-    "inputs": [
-      { "name": "newOwner", "type": "address", "internalType": "address" }
-    ],
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
+    "inputs": [
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
     "name": "userReceipts",
-    "type": "function",
-    "inputs": [
-      { "name": "", "type": "address", "internalType": "address" },
-      { "name": "", "type": "uint256", "internalType": "uint256" }
-    ],
-    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
-    "stateMutability": "view"
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "name": "verifyReceipt",
-    "type": "function",
     "inputs": [
-      { "name": "_receiptId", "type": "uint256", "internalType": "uint256" }
+      { "internalType": "uint256", "name": "_receiptId", "type": "uint256" }
     ],
+    "name": "verifyReceipt",
     "outputs": [],
-    "stateMutability": "nonpayable"
+    "stateMutability": "nonpayable",
+    "type": "function"
   }
 ]

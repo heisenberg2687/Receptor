@@ -1,6 +1,7 @@
 {
-    "cSpell.words": [
-        "assemblyscript",
-        "graphprotocol"
-    ]
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#510261",
+        "titleBar.activeBackground": "#710388",
+        "titleBar.activeForeground": "#FEFBFF"
+    }
 }

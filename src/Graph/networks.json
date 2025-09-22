@@ -1,8 +1,8 @@
 {
   "sepolia": {
     "ReceiptVerification": {
-      "address": "0xc18866f893E6f79451e63c30b2564E9CF3e9f5E9",
-      "startBlock": 9219751
+      "address": "0x9985a4e372a83DfD0aC860f61f4C8FC77CA13Dfa",
+      "startBlock": 9255645
     }
   }
 }
