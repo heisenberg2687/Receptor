@@ -1,0 +1,17 @@
+[profile.default]
+src = 'src'
+out = 'out'
+libs = ['lib']
+
+# 👇 Enable optimizer and viaIR
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+
+# Optional: Set Solidity version explicitly
+solc_version = "0.8.30"
+
+# Remappings (if needed)
+remappings = [
+  "@openzeppelin/=lib/openzeppelin-contracts/"
+]
